@@ -9,13 +9,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SunnyPortal
 {
-    private static final Logger LOG = LoggerFactory.getLogger(SunnyPortal.class);
-
     private static Options options = new Options();
 
     //CHECKSTYLE:OFF
@@ -32,7 +28,6 @@ public class SunnyPortal
      */
     public static void main(String[] args)
     {
-        LOG.info("\n=================================\nSTARTING SunnyPortal\n=================================\n");
         try
         {
             CommandLine cli = parseCommandLine(args);
