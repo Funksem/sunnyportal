@@ -9,17 +9,11 @@ import org.apache.commons.io.filefilter.FileFilterUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 
-import de.funksem.sunnyportal.Defines;
-
-public final class CsvUtils
+public final class IOUtils
 {
-    private CsvUtils()
-    {
-    }
 
-    public static Collection<File> getCsvFiles(String path)
+    private IOUtils()
     {
-        return getFiles(path, Defines.EXTENSION_CSV);
     }
 
     public static Collection<File> getFiles(String path, String extension)
@@ -27,4 +21,5 @@ public final class CsvUtils
         IOFileFilter filter = FileFilterUtils.suffixFileFilter(extension, IOCase.INSENSITIVE);
         return FileUtils.listFiles(new File(path), filter, TrueFileFilter.INSTANCE);
     }
+
 }
