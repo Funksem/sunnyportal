@@ -24,6 +24,8 @@ public class ComputationGlobal
     Double gesamtertag = 0.0;
     Pair<Date, Double> hoechsterErtrag = Pair.of(null, 0.0);
     Pair<Date, Double> niedrigsterErtrag = Pair.of(null, 10000.0);
+    Date anfangsDatum = null;
+    Date endeDatum = null;
 
     public ComputationGlobal()
     {
@@ -58,6 +60,16 @@ public class ComputationGlobal
             {
                 niedrigsterErtrag = Pair.of(date, power);
             }
+
+            if ((anfangsDatum == null) || (date.compareTo(anfangsDatum) < 0))
+            {
+                anfangsDatum = date;
+            }
+            if ((endeDatum == null) || (date.compareTo(endeDatum) > 0))
+            {
+                endeDatum = date;
+            }
+
         }
 
         gesamtTage = tageMitErtrag + tageOhneErtrag;
@@ -91,5 +103,15 @@ public class ComputationGlobal
     public Pair<Date, Double> getNiedrigsterErtrag()
     {
         return niedrigsterErtrag;
+    }
+
+    public Date getAnfangsDatum()
+    {
+        return anfangsDatum;
+    }
+
+    public Date getEndeDatum()
+    {
+        return endeDatum;
     }
 }

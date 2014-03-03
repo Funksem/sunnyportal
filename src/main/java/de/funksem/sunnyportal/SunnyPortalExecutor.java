@@ -43,27 +43,23 @@ public final class SunnyPortalExecutor
         Collection<File> csvFiles = IOUtils.getFiles(sourceDirectory, Defines.EXTENSION_CSV);
         Map<Date, Double> dataCsv = new TreeMap<Date, Double>();
 
-        System.out.println("Anzahl der CSV-Dateien = " + csvFiles.size() + Defines.LINE_SEPARATOR);
+        System.out.println("Verarbeite CSV-Dateien (" + csvFiles.size() + "): ");
 
         for (File file : csvFiles)
         {
-            System.out.println("Processing file: " + file.getName());
+            System.out.println("++ " + file.getName());
             try (CSVReader reader = new CSVReader(new FileReader(file), Defines.DEFAULT_SEPARATOR))
             {
                 reader.readNext(); // Header überspringen(!)
                 String[] line;
                 while ((line = reader.readNext()) != null)
                 {
-                    //                    System.out.println(file.getName() + ": " + line[Defines.COL_DATE] + " -> "
-                    //                        + line[Defines.COL_VALUE] + " kWh");
                     final Date date = DateUtils.toDate(line[Defines.COL_DATE]);
                     Double power = ConverterUtils.toDouble(line[Defines.COL_VALUE]);
-
                     if (dataCsv.containsKey(date))
                     {
                         power += dataCsv.get(date);
                     }
-
                     dataCsv.put(date, power);
                 }
             }
@@ -77,6 +73,9 @@ public final class SunnyPortalExecutor
         ComputationGlobal computationGlobal = new ComputationGlobal(dataCsv);
         computationGlobal.startComputation();
 
+        System.out.println("Zeitraum                    = "
+            + DateUtils.simpleFormat(computationGlobal.getAnfangsDatum()) + " bis "
+            + DateUtils.simpleFormat(computationGlobal.getEndeDatum()));
         System.out.println("Alle Tage mit Messung       = " + computationGlobal.getGesamtTage());
         System.out.println("Anzahl der Tage mit Ertrag  = " + computationGlobal.getTageMitErtrag());
         System.out.println("Anzahl der Tage ohne Ertrag = " + computationGlobal.getTageOhneErtrag());
