@@ -43,7 +43,7 @@ public class SunnyPortal
     private static void callRightMethod(CommandLine cli) throws FileNotFoundException, IOException
     {
         final String sourceDirectory = cli.getOptionValue('s');
-        System.out.println("Quellverzeichnis   = " + sourceDirectory);
+        System.out.println("Quellverzeichnis       = " + sourceDirectory);
 
         SunnyPortalExecutor.start(sourceDirectory);
     }
