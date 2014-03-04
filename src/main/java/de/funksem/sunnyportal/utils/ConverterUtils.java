@@ -1,9 +1,6 @@
 package de.funksem.sunnyportal.utils;
 
 import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.Locale;
 
 public final class ConverterUtils
 {
@@ -11,10 +8,10 @@ public final class ConverterUtils
     {
     }
 
-    public static Double toDouble(String value) throws ParseException
+    public static Double toDouble(String value)
     {
-        NumberFormat format = NumberFormat.getInstance(Locale.GERMANY);
-        return format.parse(value).doubleValue();
+        value = value.replace(',', '.');
+        return new Double(value);
     }
 
     public static double runden(int s, double value)

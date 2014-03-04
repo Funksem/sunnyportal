@@ -22,7 +22,7 @@ public class SunnyPortal
     {
         options.addOption("h", "help", false, "Anzeige der Hilfe");
         options.addOption("s", "csvdir", true, "Quellverzeichnis mit den CSV-Dateien");
-        options.addOption("e", "verguetung", false, "Vergütung in Cent");
+        options.addOption("e", "verguetung", true, "Vergütung in Cent");
     }
 
     // CHEKCSTYLE:ON
@@ -47,22 +47,15 @@ public class SunnyPortal
     private static void callRightMethod(CommandLine cli) throws FileNotFoundException, IOException
     {
         final String sourceDirectory = cli.getOptionValue('s');
-        System.out.println("Quellverzeichnis       = " + sourceDirectory);
-        final String strVerguetungInCent = cli.getOptionValue('e');
-        Double verguetungInCent = null;
-        try
+        final String strVerguetungInEuro = cli.getOptionValue('e');
+        Double verguetungInEuro = null;
+        if (!StringUtils.isBlank(strVerguetungInEuro))
         {
-            if (!StringUtils.isBlank(strVerguetungInCent))
-            {
-                verguetungInCent = ConverterUtils.toDouble(strVerguetungInCent);
-            }
-        }
-        catch (java.text.ParseException e)
-        {
-            System.out.println("Formatierungsfehler bei der Verguetung - " + e.getMessage());
+            verguetungInEuro = ConverterUtils.toDouble(strVerguetungInEuro);
         }
 
-        SunnyPortalExecutor.start(sourceDirectory, verguetungInCent);
+        SunnyPortalExecutor executor = new SunnyPortalExecutor();
+        executor.start(sourceDirectory, verguetungInEuro);
     }
 
     private static CommandLine parseCommandLine(String[] args)
@@ -95,7 +88,6 @@ public class SunnyPortal
             System.out.println("Es ist kein Quellverzeichnis angegeben");
             error = true;
         }
-
         return error;
     }
 
