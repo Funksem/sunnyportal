@@ -9,6 +9,9 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang3.StringUtils;
+
+import de.funksem.sunnyportal.utils.ConverterUtils;
 
 public class SunnyPortal
 {
@@ -19,6 +22,7 @@ public class SunnyPortal
     {
         options.addOption("h", "help", false, "Anzeige der Hilfe");
         options.addOption("s", "csvdir", true, "Quellverzeichnis mit den CSV-Dateien");
+        options.addOption("e", "verguetung", false, "Vergütung in Cent");
     }
 
     // CHEKCSTYLE:ON
@@ -44,8 +48,21 @@ public class SunnyPortal
     {
         final String sourceDirectory = cli.getOptionValue('s');
         System.out.println("Quellverzeichnis       = " + sourceDirectory);
+        final String strVerguetungInCent = cli.getOptionValue('e');
+        Double verguetungInCent = null;
+        try
+        {
+            if (!StringUtils.isBlank(strVerguetungInCent))
+            {
+                verguetungInCent = ConverterUtils.toDouble(strVerguetungInCent);
+            }
+        }
+        catch (java.text.ParseException e)
+        {
+            System.out.println("Formatierungsfehler bei der Verguetung - " + e.getMessage());
+        }
 
-        SunnyPortalExecutor.start(sourceDirectory);
+        SunnyPortalExecutor.start(sourceDirectory, verguetungInCent);
     }
 
     private static CommandLine parseCommandLine(String[] args)
@@ -86,7 +103,7 @@ public class SunnyPortal
     {
         System.out.println();
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("pdfwrapper <MODUS> <OPTIONS>" + Defines.LINE_SEPARATOR, options);
+        formatter.printHelp("SunnyPortal <OPTIONS>" + Defines.LINE_SEPARATOR, options);
         System.out.println();
         System.exit(0);
     }
