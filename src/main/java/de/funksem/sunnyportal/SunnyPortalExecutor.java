@@ -9,6 +9,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.StringUtils;
+
 import au.com.bytecode.opencsv.CSVReader;
 import de.funksem.sunnyportal.utils.ConverterUtils;
 import de.funksem.sunnyportal.utils.DateUtils;
@@ -17,19 +19,20 @@ import de.funksem.sunnyportal.utils.IOUtils;
 public class SunnyPortalExecutor
 {
     Double verguetung = null;
+    Double guthaben = null;
 
     public SunnyPortalExecutor()
     {
     }
 
-    public void start(final String sourceDirectory, Double verguetungInEuro)
+    public void start(final String sourceDirectory, Double verguetungInEuro, Double guthabenProMonat)
     {
         if (!IOUtils.isDir(sourceDirectory))
         {
             throw new IllegalArgumentException("Fehler - Kein Verzeichnis: " + sourceDirectory);
         }
 
-        System.out.println("Quellverzeichnis  = " + sourceDirectory);
+        System.out.println("Quellverzeichnis      = " + sourceDirectory);
 
         if (verguetungInEuro == null)
         {
@@ -38,7 +41,27 @@ public class SunnyPortalExecutor
         else
         {
             verguetung = verguetungInEuro;
-            System.out.println("Vergütung pro kWh = " + verguetung + " EUR");
+            System.out.println("Vergütung pro kWh      = " + verguetung + " EUR");
+        }
+        if (guthabenProMonat == null)
+        {
+            System.out.println("Kein Guthaben pro Monat angegeben.");
+        }
+        else
+        {
+            guthaben = guthabenProMonat;
+            System.out.println("Überweisungen pro Monat = " + guthaben + " EUR");
+        }
+
+        if ((guthaben != null) && (verguetung != null))
+        {
+            Double minKWhProMonat = guthaben / verguetung;
+            Double minKWhProJahr = minKWhProMonat * 12;
+            Double minKWhProTag = minKWhProJahr / 365;
+            System.out.println("Min. Ertrag pro Jahr  = " + ConverterUtils.runden(3, minKWhProJahr) + " kWh");
+            System.out
+                .println("Min. Ertrag pro Monat = " + ConverterUtils.runden(3, minKWhProMonat) + " kWh");
+            System.out.println("Min. Ertrag pro Tag   = " + ConverterUtils.runden(3, minKWhProTag) + " kWh");
         }
 
         Collection<File> csvFiles = IOUtils.getFiles(sourceDirectory, Defines.EXTENSION_CSV);
@@ -98,12 +121,15 @@ public class SunnyPortalExecutor
                 while ((line = reader.readNext()) != null)
                 {
                     final Date date = DateUtils.toDate(line[Defines.COL_DATE]);
-                    Double power = ConverterUtils.toDouble(line[Defines.COL_VALUE]);
-                    if (dataCsv.containsKey(date))
+                    if (!StringUtils.isBlank(line[Defines.COL_VALUE]))
                     {
-                        power += dataCsv.get(date);
+                        Double power = ConverterUtils.toDouble(line[Defines.COL_VALUE]);
+                        if (dataCsv.containsKey(date))
+                        {
+                            power += dataCsv.get(date);
+                        }
+                        dataCsv.put(date, power);
                     }
-                    dataCsv.put(date, power);
                 }
             }
             catch (IOException | ParseException e)
