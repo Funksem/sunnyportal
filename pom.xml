@@ -19,6 +19,7 @@
     <prerequisites>
         <maven>3.1.1</maven>
     </prerequisites>
+
     <profiles>
         <profile>
             <id>developer</id>
@@ -38,7 +39,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.2.1</version>
+            <version>3.3</version>
         </dependency>
         <dependency>
             <groupId>commons-io</groupId>
@@ -51,19 +52,9 @@
             <version>1.2</version>
         </dependency>
         <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.5</version>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.0.13</version>
-        </dependency>
-        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.8.7</version>
+            <version>6.8.8</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -104,10 +95,10 @@
                 <configuration>
                     <appendAssemblyId>false</appendAssemblyId>
 
-                    <finalName>mp3caretaker-${project.version}</finalName>
+                    <finalName>sunnyportal-${project.version}</finalName>
 
                     <descriptors>
-                        <descriptor>src/main/assembly/mp3caretaker.xml</descriptor>
+                        <descriptor>src/main/assembly/sunnyportal.xml</descriptor>
                     </descriptors>
                 </configuration>
                 <executions>

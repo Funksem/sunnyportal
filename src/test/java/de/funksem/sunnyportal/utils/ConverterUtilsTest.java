@@ -1,6 +1,6 @@
 package de.funksem.sunnyportal.utils;
 
-import org.junit.Assert;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 @Test
