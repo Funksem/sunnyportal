@@ -172,6 +172,8 @@ public class SunnyPortalExecutor
 
     private void printBasicResults(ComputationGlobal computationGlobal, String title)
     {
+        int diffMonate = DateUtils.diffInMonaten(computationGlobal.getAnfangsDatum(),
+            computationGlobal.getEndeDatum());
         System.out.println("\n++++++++++++++++++++++++++  " + title + "  ++++++++++++++++++++++++++\n");
         System.out.println("Zeitraum                    = "
             + DateUtils.simpleFormat(computationGlobal.getAnfangsDatum()) + " bis "
@@ -200,8 +202,9 @@ public class SunnyPortalExecutor
             + " kWh (" + DateUtils.simpleFormat(computationGlobal.getNiedrigsterErtrag().getLeft()) + ")");
         if (verguetung != null)
         {
-            System.out.println("Vergütung                   = "
-                + calcVerguetung(computationGlobal.getGesamtertag()) + " EUR");
+            System.out.println("Gesamtvergütung             = "
+                + calcVerguetung(computationGlobal.getGesamtertag()) + " EUR (Durchschnitt pro Monat = "
+                + (calcVerguetung(computationGlobal.getGesamtertag()) / diffMonate) + " EUR");
         }
     }
 

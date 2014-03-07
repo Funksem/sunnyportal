@@ -12,6 +12,12 @@ import java.util.Date;
  * @author hartmann_t
  * @date 03.03.2014
  */
+/**
+ * TODO hartmann_t Klassenbeschreibung fuer DateUtils einfuegen
+ * 
+ * @author hartmann_t
+ * @date 07.03.2014
+ */
 public final class DateUtils
 {
     private static final String PATTERN_DD_MM_YY = "dd.MM.yy";
@@ -81,5 +87,24 @@ public final class DateUtils
                 }
                 return 28;
         }
+    }
+
+    /**
+     * TODO Ergebnisse zu ungenau
+     */
+    public static int diffInMonaten(Date d1, Date d2)
+    {
+        long millisBetween = 0;
+        if (d1.getTime() > d2.getTime())
+        {
+            millisBetween = d1.getTime() - d2.getTime();
+        }
+        else
+        {
+            millisBetween = d2.getTime() - d1.getTime();
+        }
+        long daysBetween = millisBetween / (1000 * 60 * 60 * 24);
+
+        return (int) (daysBetween / 30);
     }
 }
