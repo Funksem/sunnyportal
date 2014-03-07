@@ -3,6 +3,8 @@ package de.funksem.sunnyportal;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.Date;
@@ -19,7 +21,7 @@ import de.funksem.sunnyportal.utils.IOUtils;
 public class SunnyPortalExecutor
 {
     Double verguetung = null;
-    Double guthaben = null;
+    Double ueberweisungVomFinanzamt = null;
 
     public SunnyPortalExecutor()
     {
@@ -32,7 +34,7 @@ public class SunnyPortalExecutor
             throw new IllegalArgumentException("Fehler - Kein Verzeichnis: " + sourceDirectory);
         }
 
-        System.out.println("Quellverzeichnis      = " + sourceDirectory);
+        System.out.println("Quellverzeichnis        = " + sourceDirectory);
 
         if (verguetungInEuro == null)
         {
@@ -41,7 +43,7 @@ public class SunnyPortalExecutor
         else
         {
             verguetung = verguetungInEuro;
-            System.out.println("Vergütung pro kWh      = " + verguetung + " EUR");
+            System.out.println("Vergütung pro kWh       = " + verguetung + " EUR");
         }
         if (guthabenProMonat == null)
         {
@@ -49,19 +51,22 @@ public class SunnyPortalExecutor
         }
         else
         {
-            guthaben = guthabenProMonat;
-            System.out.println("Überweisungen pro Monat = " + guthaben + " EUR");
+            ueberweisungVomFinanzamt = guthabenProMonat;
+            System.out.println("Überweisungen (Finanzamt) pro Monat = " + ueberweisungVomFinanzamt + " EUR");
         }
 
-        if ((guthaben != null) && (verguetung != null))
+        if ((ueberweisungVomFinanzamt != null) && (verguetung != null))
         {
-            Double minKWhProMonat = guthaben / verguetung;
-            Double minKWhProJahr = minKWhProMonat * 12;
-            Double minKWhProTag = minKWhProJahr / 365;
-            System.out.println("Min. Ertrag pro Jahr  = " + ConverterUtils.runden(3, minKWhProJahr) + " kWh");
+            Double minKWhProMonat = getMinKWhProMonat();
+            Double minKWhProJahr = getMinKWhProJahr();
+            Double minKWhProTag = getMinKWhProTag();
+            System.out.println("Ertrag pro Jahr um " + ueberweisungVomFinanzamt + " EUR zu erreichen  = "
+                + ConverterUtils.runden(3, minKWhProJahr) + " kWh");
             System.out
-                .println("Min. Ertrag pro Monat = " + ConverterUtils.runden(3, minKWhProMonat) + " kWh");
-            System.out.println("Min. Ertrag pro Tag   = " + ConverterUtils.runden(3, minKWhProTag) + " kWh");
+                .println("Ertrag pro Monat um " + ueberweisungVomFinanzamt + " EUR zu erreichen = "
+                    + ConverterUtils.runden(3, minKWhProMonat) + " kWh");
+            System.out.println("Ertrag pro Tag um " + ueberweisungVomFinanzamt + " EUR zu erreichen   = "
+                + ConverterUtils.runden(3, minKWhProTag) + " kWh");
         }
 
         Collection<File> csvFiles = IOUtils.getFiles(sourceDirectory, Defines.EXTENSION_CSV);
@@ -91,21 +96,46 @@ public class SunnyPortalExecutor
                 final Double power = entry.getValue();
 
                 int monatsTage = DateUtils.monatsTagzahl(month, year);
-                String strMonth = Integer.toString(month);
-                if (month < 10)
-                {
-                    strMonth = "0" + month;
-                }
-                System.out.println(year
-                    + "."
-                    + strMonth
-                    + " -> "
-                    + ConverterUtils.runden(3, power)
-                    + " kWh (DSch/" + monatsTage + " Tage "
-                    + ConverterUtils.runden(3,
-                        (power / monatsTage)) + " kWh) -> " + calcVerguetung(power) + " EUR");
+
+                DecimalFormat formatterKWH = new java.text.DecimalFormat("0.000");
+                String msg = MessageFormat
+                    .format(
+                        "{0}.{1} = {2} kWh (DSch/{3} Tage {4} kWh) -> {5} EUR (bis zum Finanzamtwert = {6} EUR)",
+                        Integer.toString(year), StringUtils.leftPad(Integer.toString(month), 2, '0'),
+                        formatterKWH.format(ConverterUtils.runden(3, power)), monatsTage,
+                        formatterKWH.format(ConverterUtils.runden(3,
+                            (power / monatsTage))), calcVerguetung(power), calcVerguetung(power)
+                            - ueberweisungVomFinanzamt);
+                System.out.println(msg);
             }
         }
+    }
+
+    private Double getMinKWhProTag()
+    {
+        if ((ueberweisungVomFinanzamt != null) && (verguetung != null))
+        {
+            return getMinKWhProJahr() / 365;
+        }
+        return null;
+    }
+
+    private Double getMinKWhProJahr()
+    {
+        if ((ueberweisungVomFinanzamt != null) && (verguetung != null))
+        {
+            return getMinKWhProMonat() * 12;
+        }
+        return null;
+    }
+
+    private Double getMinKWhProMonat()
+    {
+        if ((ueberweisungVomFinanzamt != null) && (verguetung != null))
+        {
+            return ueberweisungVomFinanzamt / verguetung;
+        }
+        return null;
     }
 
     private Map<Date, Double> readCsvFiles(Collection<File> csvFiles)
@@ -146,30 +176,37 @@ public class SunnyPortalExecutor
         System.out.println("Zeitraum                    = "
             + DateUtils.simpleFormat(computationGlobal.getAnfangsDatum()) + " bis "
             + DateUtils.simpleFormat(computationGlobal.getEndeDatum()));
-        System.out.println("Anzahl der Tage mit Messung = " + computationGlobal.getGesamtTage());
-        System.out.println("Anzahl der Tage mit Ertrag  = " + computationGlobal.getTageMitErtrag());
-        System.out.println("Anzahl der Tage ohne Ertrag = " + computationGlobal.getTageOhneErtrag());
+
+        System.out.println(MessageFormat.format(
+            "Anzahl der Tage mit Messung = {0} (mit Ertrag={1}, ohne Ertrag={2})",
+            computationGlobal.getGesamtTage(), computationGlobal.getTageMitErtrag(),
+            computationGlobal.getTageOhneErtrag()));
         System.out.println("Gesamtertrag                = "
             + ConverterUtils.runden(3, computationGlobal.getGesamtertag()) + " kWh");
-        if (verguetung != null)
-        {
-            System.out.println("Vergütung                   = "
-                + calcVerguetung(computationGlobal.getGesamtertag()) + " EUR");
-        }
-        System.out.println("Durchschnitt pro Tag        = "
-            + ConverterUtils.runden(3,
-                (computationGlobal.getGesamtertag() / computationGlobal.getGesamtTage())) + " kWh");
+
+        Double unterschied = (computationGlobal.getGesamtertag() / computationGlobal.getGesamtTage())
+            - getMinKWhProTag();
+
+        System.out.println(MessageFormat.format(
+            "Durchschnitt pro Tag        = {0} kWh, (bis zum Finanzamtwert = {1} kWh)",
+            ConverterUtils.runden(3,
+                (computationGlobal.getGesamtertag() / computationGlobal.getGesamtTage())), unterschied));
+
         System.out.println("Hoechster Ertrag            = "
             + computationGlobal.getHoechsterErtrag().getRight()
             + " kWh (" + DateUtils.simpleFormat(computationGlobal.getHoechsterErtrag().getLeft()) + ")");
         System.out.println("Niedrigster Ertrag          = "
             + computationGlobal.getNiedrigsterErtrag().getRight()
             + " kWh (" + DateUtils.simpleFormat(computationGlobal.getNiedrigsterErtrag().getLeft()) + ")");
+        if (verguetung != null)
+        {
+            System.out.println("Vergütung                   = "
+                + calcVerguetung(computationGlobal.getGesamtertag()) + " EUR");
+        }
     }
 
     Double calcVerguetung(Double power)
     {
         return ConverterUtils.runden(2, (power * verguetung));
-
     }
 }
