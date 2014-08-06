@@ -8,13 +8,7 @@ import java.util.Date;
 
 /**
  * TODO hartmann_t Klassenbeschreibung fuer DateUtils einfuegen
- * 
- * @author hartmann_t
- * @date 03.03.2014
- */
-/**
- * TODO hartmann_t Klassenbeschreibung fuer DateUtils einfuegen
- * 
+ *
  * @author hartmann_t
  * @date 07.03.2014
  */
